@@ -2,12 +2,13 @@ from torch.utils.data import Dataset
 
 class StreamingTextDataset(Dataset):
     '''
-    Датасет, который токенизирует тексты "на лету"
+    Объект PyTorch Dataset для потоковой токенизации текстов ("на лету").
     
-    То есть нам не нужно подгружать весь датасет в RAM, а мы берем каждый токен по одному.
-    Это удобно для работы при обучении модели -> неплохо бьет по скорости, зато мы можем подгружать больший max_len, менять токенизаторы и конфиг
+    Вместо предварительной токенизации всего фрейма, тексты обрабатываются непосредственно при обращении к элементу датасета.
+    Это снижает нагрузку на оперативную память и позволяет динамически менять параметры токенизатора
     
-    Но для деплоя будет создан свой метод, который берет уже готовую разметку токенов в сохраненной модели (выше скорость при инференсе)
+    Такой подход не удобен для деплоя. Будет создан свой метод, который берет уже готовую разметку токенов в сохраненной модели,
+    так как производительность будет выше
     
     Параметры:
     ---------
@@ -15,15 +16,18 @@ class StreamingTextDataset(Dataset):
         Последовательность исходных входящих строк
     labels : str
         Последовательность тэгов
-    tokenizer : объект токенизации
+    tokenizer : transformers.PreTrainedTokenizer
         tokenizer (text, truncation=True, max_length=self.max_len, padding=False, return_tensors=None)
-        Возвращает mapping с ключом 'input_ids', а также 'attention_mask'
+        Возвращает mapping с ключом 'input_ids', а также 'attention_mask'. Совместим с Hugging Face API.
     max_len : int
         Максимальная длина последовательности
         
     Возвращает:
     ----------
-        dict: {"input_ids": list[int] или Tensor, "attention_mask": list[int] или Tensor, "labels": int}
+        dict
+            - "input_ids": list[int] — идентификаторы токенов;
+            - "attention_mask": list[int] — маска;
+            - "labels": int — целевой тэг.
     
     Примечания:
     ----------
@@ -36,6 +40,7 @@ class StreamingTextDataset(Dataset):
         self.max_len = max_len
 
     def __len__(self):
+        '''Возвращает количество элементов в датасете'''
         return len(self.labels)
 
     def __getitem__(self, idx):
