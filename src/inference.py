@@ -1,9 +1,8 @@
 import os
-import pandas as pd
 import numpy as np
 import torch
 from utils import clean_text
-from typing import Dict, List, Optional
+from typing import Dict, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import joblib
 

@@ -3,7 +3,7 @@ import torch
 import joblib
 import pandas as pd
 import numpy as np
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, DataCollatorWithPadding, get_linear_schedule_with_warmup
 from torch.optim import AdamW
 from sklearn.preprocessing import LabelEncoder
