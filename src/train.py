@@ -12,8 +12,8 @@ def main():
     classifier.prepare_data(df)
     classifier.build_model()
     classifier.train()
-    # После тренировки — финальная оценка на test set
-    print("Final evaluation on test set:")
+    
+    print("Финальная проверка на тестовой выборке:")
     classifier.evaluate(loader=classifier.test_loader)
     classifier.save()
 

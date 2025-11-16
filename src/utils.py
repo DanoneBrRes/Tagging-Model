@@ -3,7 +3,14 @@ import re
 import torch
 import numpy as np
 
-def set_seed(seed):
+def set_seed(seed: int):
+    '''
+    Метод для создания seed для модели
+    
+    Примечание:
+        - Только локальный сид. Для передачи на глобальное пространство и инференса нужно создавать отдельный метод.
+    '''
+    
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -11,6 +18,15 @@ def set_seed(seed):
         torch.cuda.manual_seed_all(seed)
 
 def clean_text(text: str) -> str:
+    '''
+    Метод очистки текстов в датафрейме
+    
+    Возвращает:
+    -----------
+        text : str
+            Очищенный текст
+    '''
+    
     text = str(text)
     text = re.sub(r"http\S+", "", text)
     text = re.sub(r"@\w+", "", text)
@@ -19,6 +35,15 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 def get_grad_scaler_and_autocast(device):
+    '''
+    Метод для инициализации AMP в обучении
+    
+    Возвращает:
+    ----------
+        scaler : torch.amp.GradScaler
+        autocast_ctx : Callable
+    '''
+    
     use_amp = torch.cuda.is_available()
     try:
         scaler = torch.amp.GradScaler(device=device.type, enabled=use_amp)
@@ -29,3 +54,31 @@ def get_grad_scaler_and_autocast(device):
         def autocast_ctx():
             return torch.amp.autocast(enabled=use_amp)
     return scaler, autocast_ctx
+
+def find_col_by_keywords(columns, keywords):
+    '''
+    Метод для автоматического определения колонок в датафрейме
+        
+    Параметры:
+    -----------
+        columns : list of str
+            Список названий колонок датафрейма
+        keywords : list of str
+            Список ключевых слов для поиска
+        
+    Возвращает:
+    -----------
+        c (column) : str
+        
+    Пример:
+    --------
+    find_col_by_keywords(['text', 'label'], ['label'])
+    'label'
+    '''
+    
+    lc = [c.lower() for c in columns]
+    for kw in keywords:
+        for c, cl in zip(columns, lc):
+            if kw in cl:
+                return c
+    return None
